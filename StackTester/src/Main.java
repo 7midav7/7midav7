@@ -18,7 +18,9 @@ public class Main {
         double[] arrayVladik = machineVladik.getTimeArray().clone();
 
         for ( int i = 1; i < 10; ++ i ){
-            System.out.println(arrayJeka[i] + " " + arrayVadim[i] + " " + arrayVladik[i]);
+            System.out.println(arrayJeka[i] / 1000000
+                + " " + arrayVadim[i] / 1000000 + " "
+                    + arrayVladik[i] / 1000000);
         }
     }
 }
