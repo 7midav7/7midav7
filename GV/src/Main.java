@@ -7,8 +7,13 @@ import java.io.InputStreamReader;
  */
 public class Main {
     public static void main(String[] args) {
-        AbstractModel model = new Model(new KaravanView());
-        KaravanController controller = new KaravanController( model );
+        AbstractModel model = new Model();
+        СaravanController controller = new СaravanController();
+        AbstractView view = new СaravanView();
+
+        model.setView(view);
+        controller.setModel(model);
+        ((СaravanView) view).setController(controller);
 
         try{
             controller.readData(new InputStreamReader( new FileInputStream("input.txt")));

@@ -3,25 +3,58 @@ import java.util.ArrayList;
 /**
  * Created by lenovo on 2/11/2015.
  */
-public interface AbstractModel {
+public abstract class AbstractModel {
+    private AbstractView view;
+    ArrayList< ArrayList<Integer> > list = new ArrayList< ArrayList<Integer> >();
+    ArrayList< Integer > values = new ArrayList<Integer>();
+    ArrayList< Integer > marks = new ArrayList<Integer>();
 
-    public int addVertex();
+    public void setView(AbstractView view) {
+        this.view = view;
+    }
 
-    public void addEdge(int f, int d);
+    public int addVertex() {
+        list.add(new ArrayList<Integer>());
+        values.add(0);
+        marks.add(0);
+        return list.size() - 1;
+    }
 
-    public void addArc(int from, int to);
+    public void addEdge(int f, int s) {
+        addArc(f, s);
+        addArc(s, f);
+    }
 
-    public ArrayList<Integer> getNeighbors(int vertex);
+    public void addArc(int from, int to) {
+        list.get(from).add(to);
+    }
 
-    public void markVertex(int vertex, int color);
+    public void endBuildGraph() {
+        view.endBuildGraph(list);
+    }
 
-    public int getMarkVertex(int vertex);
+    public ArrayList<Integer> getNeighbors(int vertex) {
+        return list.get(vertex);
+    }
 
-    public void setValueVertex(int vertex, int value);
+    public void markVertex(int vertex, int color) {
+        marks.set(vertex, color);
+    }
 
-    public int getValueVertex(int vertex);
+    public int size() {
+        return list.size();
+    }
 
-    public int size();
+    public int getMarkVertex(int vertex) {
+        return marks.get(vertex);
+    }
 
-    public void endBuildGraph();
+    public void setValueVertex(int vertex, int value) {
+        values.set(vertex, value);
+    }
+
+    public int getValueVertex(int vertex) {
+        return values.get(vertex);
+    }
+
 }

@@ -3,45 +3,54 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 /**
  * Created by lenovo on 2/11/2015.
  */
-public class KaravanController {
+public class СaravanController {
 
    private AbstractModel model;
-   int from;
-   int to;
+   private int from;
+   private int to;
+   private int height = 0;
 
-   KaravanController(AbstractModel model){
-       this.model = model;
-   }
+    public int getHeight() {
+        return height;
+    }
 
-   public void readData(InputStreamReader isr) throws IOException{
+    public int getWidth() {
+        return width;
+    }
+
+    private int width = 0;
+
+    public void setModel(AbstractModel model) {
+        this.model = model;
+    }
+
+    public void readData(InputStreamReader isr) throws IOException{
        BufferedReader reader = new BufferedReader( isr );
        StringTokenizer tokenizer = new StringTokenizer( reader.readLine() );
 
-       int n = Integer.parseInt(tokenizer.nextToken());
-       int m = Integer.parseInt(tokenizer.nextToken());
+       this.height = Integer.parseInt(tokenizer.nextToken());
+       this.width = Integer.parseInt(tokenizer.nextToken());
 
        tokenizer = new StringTokenizer( reader.readLine() );
-       for ( int i = 0; i < n; ++ i ) {
-           for (int j = 0; j < m; ++j){
+       for ( int i = 0; i < this.height; ++ i ) {
+           for (int j = 0; j < this.width; ++j){
                int temp = Integer.parseInt(tokenizer.nextToken());
 
                int num = model.addVertex();
                model.setValueVertex(num, temp);
 
                if ( i != 0 ){
-                   if (model.getValueVertex(num - n) >= temp){
-                       model.addArc(num - n, num);
+                   if (model.getValueVertex(num - this.height) >= temp){
+                       model.addArc(num - this.height, num);
                    }
-                   if (model.getValueVertex(num - n) <= temp){
-                       model.addArc(num, num - n);
+                   if (model.getValueVertex(num - this.height) <= temp){
+                       model.addArc(num, num - this.height);
                    }
-
                }
                if ( j != 0){
                    if (model.getValueVertex(num - 1) >= temp){
@@ -55,8 +64,9 @@ public class KaravanController {
            tokenizer = new StringTokenizer(reader.readLine());
        }
 
-       from = Integer.parseInt(tokenizer.nextToken());
-       to = Integer.parseInt(tokenizer.nextToken());
+       this.from = Integer.parseInt(tokenizer.nextToken());
+       this.to = Integer.parseInt(tokenizer.nextToken());
+       model.endBuildGraph();
    }
 
    public void findMinTrace(){
