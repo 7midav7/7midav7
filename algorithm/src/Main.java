@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
 import java.util.Scanner;
 
 /**
@@ -11,7 +10,7 @@ import java.util.Scanner;
 
 class Node{
    public int val;
-   public long numParents;
+   public long numChildrens;
    public int level;
    public Node right;
    public Node left;
@@ -19,7 +18,7 @@ class Node{
 
     Node(int val) {
         this.val = val;
-        this.numParents = 0;
+        this.numChildrens = 0;
         this.level = 1;
     }
 
@@ -30,7 +29,6 @@ class Node{
 public class Main {
     static Node root = new Node(Integer.MAX_VALUE); // WARNING
     static PrintWriter writer;
-    static int maxLengthTrace = 0;
     static Node predRootTrace;
     static Node rootTrace;
     static Node leftTraceVertex;
@@ -41,14 +39,24 @@ public class Main {
     static Node afterToDelete;
     static Node predAfterToDelete;
     static int lengthTrace = 0;
+    static Node secondToDelete;
 
     public static int getLevelChildren(Node children){
         if (children == null) return 0;
         return children.level;
     }
 
+    public static boolean theBest(Node cur, Node curRoot){
+        if ( curRoot == null ) return true;
+        int curLevel = getLevelChildren(cur.left) + getLevelChildren(cur.right);
+        int curRootLevel = getLevelChildren(curRoot.left) + getLevelChildren(curRoot.right);
+        if (getLevelChildren(cur.left) != 0 && getLevelChildren(cur.right) != 0) --curLevel;
+        if (getLevelChildren(curRoot.left) != 0 && getLevelChildren(curRoot.right) != 0) --curRootLevel;
+        return ( curLevel > curRootLevel) || (curLevel == curRootLevel && cur.val < curRoot.val);
+    }
+
     public static void add(Node cur, Node pred, int value){
-        ++ pred.numParents;
+        ++ pred.numChildrens;
         if ( cur == null ){
             if ( value < pred.val ){
                 pred.left = new Node(value);
@@ -65,16 +73,14 @@ public class Main {
         }
         cur.level = Math.max( getLevelChildren(cur.left), getLevelChildren(cur.right)) + 1;
 
-        int tempLevel = getLevelChildren(cur.left) + getLevelChildren(cur.right);
-        if ( tempLevel > maxLengthTrace ){
-            maxLengthTrace = tempLevel;
+        if ( theBest(cur, rootTrace) ){
             predRootTrace = pred;
             rootTrace = cur;
         }
     }
 
     public static Node findEndTrace(Node cur, Node parents){
-        if ( cur.numParents == 0 ){
+        if ( cur.numChildrens == 0 ){
             return parents;
         }
         if ( getLevelChildren(cur.left) >= getLevelChildren(cur.right) ){
@@ -93,9 +99,9 @@ public class Main {
         return cur.right;
     }
 
-    public static void markEndsTrace(){
-        leftTraceVertex.inTrace = true;
-        rightTraceVertex.inTrace = true;
+    public static void markEndsTrace(boolean first, boolean second){
+        leftTraceVertex.inTrace = first;
+        rightTraceVertex.inTrace = second;
     }
 
     public static boolean findHalfTrace(Node cur){ // should change min keys
@@ -105,14 +111,14 @@ public class Main {
             leftTraceVertex = cur;
             rightTraceVertex = findEndTrace(cur.right, cur);
             rightTraceVertex = getMinList(rightTraceVertex);
-            markEndsTrace();
+            markEndsTrace(true, true);
             return false;
         }
         if (getLevelChildren(cur.right) == 0){
             rightTraceVertex = cur;
             leftTraceVertex = findEndTrace(cur.left, cur);
             leftTraceVertex = getMinList(leftTraceVertex);
-            markEndsTrace();
+            markEndsTrace(true, true);
             return false;
         }
         leftTraceVertex = findEndTrace(cur.left, cur);
@@ -129,7 +135,7 @@ public class Main {
             rightTraceVertex = getMinList(rightTraceVertex);
         }
 
-        markEndsTrace();
+        markEndsTrace(true, true);
         return false;
     }
 
@@ -184,6 +190,21 @@ public class Main {
         }
     }
 
+    public static boolean equals(){
+        leftTraceVertex = getMinList(leftTraceVertex);
+        markEndsTrace(true, true);
+        findMedium(predRootTrace, rootTrace, lengthTrace);
+
+        secondToDelete = toDelete;
+        markEndsTrace(false, false);
+
+        rightTraceVertex = getMinList(rightTraceVertex);
+        markEndsTrace(true, true);
+        findMedium(predRootTrace, rootTrace, lengthTrace);
+
+        return ( toDelete.val == secondToDelete.val );
+    }
+
     public static void main(String[] args) throws IOException{
         Scanner scanner = new Scanner(new File("tst.in"));
         writer = new PrintWriter( new FileWriter("tst.out"));
@@ -192,13 +213,19 @@ public class Main {
             int temp = scanner.nextInt();
             add(root.left, root, temp);
         }
+        if (root.numChildrens == 1){
+            writer.println(root.left.val);
+            writer.close();
+            return;
+        }
         boolean isEquals = findHalfTrace(rootTrace);    // not always change position middle
-        if ( ( lengthTrace % 2 == 1 ) && ( !isEquals ) ) {
-            findMedium(predRootTrace, rootTrace, lengthTrace);
-            deleteMedium();
+        if ( !isEquals || !equals() ){
+            if ( ( lengthTrace % 2 == 1 ) ) {
+                findMedium(predRootTrace, rootTrace, lengthTrace);
+                deleteMedium();
+            }
         }
         show(root.left);
-
         //writer.println(leftTraceVertex.val + " " + rightTraceVertex.val + " " + toDelete.val + " " + lengthTrace);
 
         writer.close();
