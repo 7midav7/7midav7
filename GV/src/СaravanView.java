@@ -1,3 +1,5 @@
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 /**
@@ -5,6 +7,7 @@ import java.util.ArrayList;
  */
 public class СaravanView implements AbstractView {
     СaravanController controller;
+    ViewFrame frame = new ViewFrame();
 
     public void setController(СaravanController controller) {
         this.controller = controller;
@@ -12,6 +15,10 @@ public class СaravanView implements AbstractView {
 
     @Override
     public void markVertex(int vertex, int color) {
+         DrawComponent dc = frame.getDrawComponent();
+
+
+         Rectangle2D rect = (Rectangle2D) dc.getShape(vertex);
 
     }
 
@@ -20,7 +27,20 @@ public class СaravanView implements AbstractView {
         int h = controller.getHeight();
         int w = controller.getWidth();
 
-        ViewFrame frame = new ViewFrame();
+        int spaceRight = 100;
+        int spaceDown = 100;
 
+        frame = new ViewFrame();
+        int width = ( frame.getWidth() - spaceRight ) / w;
+        int height = ( frame.getHeight() - spaceDown ) / h;
+
+        DrawComponent dc = frame.getDrawComponent();
+
+        for (int i = 0; i < h; ++ i){
+            for (int j = 0; j < w; ++ j){
+                Rectangle2D rect = new Rectangle2D.Double(i*width, j*height, width, height);
+                dc.addShape(rect);
+            }
+        }
     }
 }

@@ -1,10 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Created by lenovo on 2/12/2015.
  */
 public class ViewFrame extends JFrame {
+
+    private DrawComponent drawComponent = new DrawComponent();
 
     ViewFrame() {
         Toolkit kit = Toolkit.getDefaultToolkit();
@@ -17,7 +20,13 @@ public class ViewFrame extends JFrame {
 
         setTitle("Caravan");
 
+        add(drawComponent);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+    }
+
+    public DrawComponent getDrawComponent() {
+        return drawComponent;
     }
 }
