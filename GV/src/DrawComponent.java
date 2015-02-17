@@ -1,35 +1,34 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 /**
  * Created by lenovo on 2/13/2015.
  */
 public class DrawComponent extends JComponent {
-    ArrayList<Shape> shapeList = new ArrayList<Shape>();
-    ArrayList<Color> colorList = new ArrayList<Color>();
+    ArrayList<MyRectangle> rectangleList = new ArrayList<MyRectangle>();
 
-    public void addShape(Shape shape){
-        shapeList.add(shape);
-        colorList.add(new Color(0xffffff));
+    public void addRectangle(MyRectangle shape){
+        rectangleList.add(shape);
     }
 
-    public Shape getShape(int index){
-        if ( index >= shapeList.size() ) {
+    public MyRectangle getRectangle(int index){
+        return rectangleList.get(index);
+    }
+
+    public MyRectangle rectangle(int index){
+        if ( index >= rectangleList.size() ) {
             return null;
         }
-        return shapeList.get(index);
+        return rectangleList.get(index);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
             Graphics2D gr2 = (Graphics2D) g;
 
-            for (int i = 0; i < shapeList.size(); ++ i){
-                gr2.setPaint( colorList.get(i) );
-                gr2.fill(shapeList.get(i));
-                gr2.draw(shapeList.get(i));
+            for (MyRectangle rectangle: rectangleList){
+                rectangle.paintMe(gr2);
             }
         }
 

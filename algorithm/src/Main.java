@@ -15,6 +15,8 @@ class Node{
    public Node right;
    public Node left;
    public boolean inTrace = false;
+   public Node leftPredEndTrace;
+   public Node rightPredEndTrace;
 
     Node(int val) {
         this.val = val;
@@ -29,40 +31,60 @@ class Node{
 public class Main {
     static Node root = new Node(Integer.MAX_VALUE); // WARNING
     static PrintWriter writer;
-    static Node predRootTrace;
+    static Node parentRootTrace;
     static Node rootTrace;
     static Node leftTraceVertex;
     static Node rightTraceVertex;
     static int numTraceVertexWas = 0;
     static Node toDelete;
-    static Node predToDelete;
+    static Node parentToDelete;
     static Node afterToDelete;
-    static Node predAfterToDelete;
-    static int lengthTrace = 0;
+    static Node parentAfterToDelete;
     static Node secondToDelete;
 
-    public static int getLevelChildren(Node children){
-        if (children == null) return 0;
-        return children.level;
+    public static int getLevelChildren(Node child){
+        if (child == null) return 0;
+        return child.level;
+    }
+
+    public static Node getEndTraceChild(Node child, Node parent){
+        if (child == null) return null;
+        if (getLevelChildren(child.left) > getLevelChildren(child.right) ){
+            return child.leftPredEndTrace;
+        }
+        if (getLevelChildren(child.left) < getLevelChildren(child.right) ){
+            return child.rightPredEndTrace;
+        }
+        if (child.numChildrens == 0 ) return parent;
+
+        return child.leftPredEndTrace;
+    }
+
+    public static int getLengthTrace(Node node){
+        int curLevel = getLevelChildren(node.left) + getLevelChildren(node.right) + 1;
+        if (getLevelChildren(node.left) != 0 && getLevelChildren(node.right) != 0) --curLevel;
+        return curLevel;
     }
 
     public static boolean theBest(Node cur, Node curRoot){
         if ( curRoot == null ) return true;
-        int curLevel = getLevelChildren(cur.left) + getLevelChildren(cur.right);
-        int curRootLevel = getLevelChildren(curRoot.left) + getLevelChildren(curRoot.right);
-        if (getLevelChildren(cur.left) != 0 && getLevelChildren(cur.right) != 0) --curLevel;
-        if (getLevelChildren(curRoot.left) != 0 && getLevelChildren(curRoot.right) != 0) --curRootLevel;
-        return ( curLevel > curRootLevel) || (curLevel == curRootLevel && cur.val < curRoot.val);
+        int curLevel = getLengthTrace(cur);
+        int curRootLevel = getLengthTrace(curRoot);
+        if (curLevel > curRootLevel) return true;
+        if (curLevel < curRootLevel) return false;
+        if (findSumEnds(cur) < findSumEnds(curRoot)) return true;
+        if (findSumEnds(cur) > findSumEnds(curRoot)) return false;
+        return (cur.val < curRoot.val);
     }
 
-    public static void add(Node cur, Node pred, int value){
-        ++ pred.numChildrens;
+    public static void add(Node cur, Node parent, int value){
+        ++ parent.numChildrens;
         if ( cur == null ){
-            if ( value < pred.val ){
-                pred.left = new Node(value);
+            if ( value < parent.val ){
+                parent.left = new Node(value);
             }
             else {
-                pred.right = new Node(value);
+                parent.right = new Node(value);
             }
             return;
         }
@@ -71,31 +93,73 @@ public class Main {
         } else {
            add(cur.right, cur, value);
         }
+    }
+
+    public static void preCalc(Node cur, Node parent){
+        if (cur == null || cur.numChildrens == 0 ){
+            return ;
+        }
+
+        preCalc(cur.left, cur);
+        preCalc(cur.right, cur);
+
         cur.level = Math.max( getLevelChildren(cur.left), getLevelChildren(cur.right)) + 1;
+        cur.leftPredEndTrace = getEndTraceChild(cur.left, cur);
+        cur.rightPredEndTrace = getEndTraceChild(cur.right, cur);
 
         if ( theBest(cur, rootTrace) ){
-            predRootTrace = pred;
+            parentRootTrace = parent;
             rootTrace = cur;
         }
+    }
+
+    public static long findSumEnds(Node node){
+
+        long sum = 0;
+        if (node.leftPredEndTrace == null && node.rightPredEndTrace == null){
+            return 0;
+        }
+        if (node.leftPredEndTrace == null){
+            sum += node.val;
+            sum += getMinList(node.rightPredEndTrace, node).val;
+            return sum;
+        }
+        if (node.rightPredEndTrace == null){
+            sum += node.val;
+            sum += getMinList(node.leftPredEndTrace, node).val;
+            return sum;
+        }
+
+        long leftDif = node.leftPredEndTrace.val - getMinList(node.leftPredEndTrace, node).val;
+        long rightDif = node.rightPredEndTrace.val - getMinList(node.rightPredEndTrace, node).val;
+
+        if (leftDif > rightDif) {
+            return getMinList(node.leftPredEndTrace, node).val + node.rightPredEndTrace.val;
+        }
+
+        return getMinList(node.rightPredEndTrace, node).val + node.leftPredEndTrace.val;
     }
 
     public static Node findEndTrace(Node cur, Node parents){
         if ( cur.numChildrens == 0 ){
             return parents;
         }
+        cur.inTrace = true;
         if ( getLevelChildren(cur.left) >= getLevelChildren(cur.right) ){
-            cur.inTrace = true;
-            ++ lengthTrace;
             return findEndTrace(cur.left, cur);
         } else {
-            cur.inTrace = true;
-            ++ lengthTrace;
             return findEndTrace(cur.right, cur);
         }
     }
 
-    public static Node getMinList(Node cur){
-        if ( getLevelChildren(cur.left) > 0) return cur.left;
+    public static Node getMinList(Node cur, Node curRoot){
+        if (cur == curRoot && curRoot.leftPredEndTrace == curRoot){
+            return cur.left;
+        }
+        if (cur == curRoot && curRoot.rightPredEndTrace == curRoot){
+            return cur.right;
+        }
+        if ( getLevelChildren(cur.left)  > 0) return cur.left;
         return cur.right;
     }
 
@@ -106,33 +170,32 @@ public class Main {
 
     public static boolean findHalfTrace(Node cur){ // should change min keys
         cur.inTrace = true;
-        lengthTrace += 2;
         if (getLevelChildren(cur.left) == 0 ){ // if the end in root
             leftTraceVertex = cur;
             rightTraceVertex = findEndTrace(cur.right, cur);
-            rightTraceVertex = getMinList(rightTraceVertex);
+            rightTraceVertex = getMinList(rightTraceVertex, rootTrace);
             markEndsTrace(true, true);
             return false;
         }
         if (getLevelChildren(cur.right) == 0){
             rightTraceVertex = cur;
             leftTraceVertex = findEndTrace(cur.left, cur);
-            leftTraceVertex = getMinList(leftTraceVertex);
+            leftTraceVertex = getMinList(leftTraceVertex, rootTrace);
             markEndsTrace(true, true);
             return false;
         }
         leftTraceVertex = findEndTrace(cur.left, cur);
         rightTraceVertex = findEndTrace(cur.right, cur);
 
-        long leftDif = leftTraceVertex.val - getMinList(leftTraceVertex).val;
-        long rightDif = rightTraceVertex.val - getMinList(rightTraceVertex).val;
+        long leftDif = leftTraceVertex.val - getMinList(leftTraceVertex, rootTrace).val;
+        long rightDif = rightTraceVertex.val - getMinList(rightTraceVertex, rootTrace).val;
 
-        if (leftDif == rightDif) return true;
+        //if (leftDif == rightDif) return true;
 
         if ( leftDif > rightDif){
-            leftTraceVertex = getMinList(leftTraceVertex);
+            leftTraceVertex = getMinList(leftTraceVertex, rootTrace);
         } else {
-            rightTraceVertex = getMinList(rightTraceVertex);
+            rightTraceVertex = getMinList(rightTraceVertex, rootTrace);
         }
 
         markEndsTrace(true, true);
@@ -148,17 +211,17 @@ public class Main {
         show(cur.right);
     }
 
-    public static void findMedium(Node pred, Node cur, int num){
+    public static void findMedium(Node parent, Node cur, int num){
         if (  cur == null ) return;
         findMedium(cur, cur.left, num);
-        if (toDelete != null && predAfterToDelete == null) {
-            predAfterToDelete = pred;
+        if (toDelete != null && parentAfterToDelete == null) {
+            parentAfterToDelete = parent;
             afterToDelete = cur;
         }
         if ( cur.inTrace ) {
             ++numTraceVertexWas;
             if (numTraceVertexWas == num / 2 + 1) {
-                predToDelete = pred;
+                parentToDelete = parent;
                 toDelete = cur;
             }
         }
@@ -175,32 +238,37 @@ public class Main {
 
     public static void deleteMedium(){
         if ( toDelete.left != null && toDelete.right != null ) {
-            substitude(predToDelete, toDelete, afterToDelete);
+            substitude(parentToDelete, toDelete, afterToDelete);
             if ( toDelete.right != afterToDelete ){
                 afterToDelete.right = toDelete.right;
             }
             afterToDelete.left = toDelete.left;
-            substitude(predAfterToDelete, afterToDelete, null);
+            substitude(parentAfterToDelete, afterToDelete, null);
         } else {
             if ( toDelete.left != null ){
-                substitude(predToDelete, toDelete, toDelete.left);
+                substitude(parentToDelete, toDelete, toDelete.left);
             } else {
-                substitude(predToDelete, toDelete, toDelete.right);
+                substitude(parentToDelete, toDelete, toDelete.right);
             }
         }
     }
 
     public static boolean equals(){
-        leftTraceVertex = getMinList(leftTraceVertex);
+        Node lastLeft = leftTraceVertex;
+        leftTraceVertex =  getMinList(leftTraceVertex, rootTrace);
         markEndsTrace(true, true);
-        findMedium(predRootTrace, rootTrace, lengthTrace);
+        findMedium(parentRootTrace, rootTrace, getLengthTrace(rootTrace));
 
         secondToDelete = toDelete;
+        toDelete = null;
+        parentAfterToDelete = null;
+        numTraceVertexWas = 0;
         markEndsTrace(false, false);
 
-        rightTraceVertex = getMinList(rightTraceVertex);
+        leftTraceVertex = lastLeft;
+        rightTraceVertex = getMinList(rightTraceVertex, rootTrace);
         markEndsTrace(true, true);
-        findMedium(predRootTrace, rootTrace, lengthTrace);
+        findMedium(parentRootTrace, rootTrace, getLengthTrace(rootTrace));
 
         return ( toDelete.val == secondToDelete.val );
     }
@@ -213,18 +281,20 @@ public class Main {
             int temp = scanner.nextInt();
             add(root.left, root, temp);
         }
+        preCalc(root.left, root);
         if (root.numChildrens == 1){
             writer.println(root.left.val);
             writer.close();
             return;
         }
         boolean isEquals = findHalfTrace(rootTrace);    // not always change position middle
-        if ( !isEquals || !equals() ){
-            if ( ( lengthTrace % 2 == 1 ) ) {
-                findMedium(predRootTrace, rootTrace, lengthTrace);
+//        if ( !isEquals || !equals() ){
+            int lengthTrace = getLengthTrace(rootTrace);
+            if ( lengthTrace % 2 == 1 ) {
+                findMedium(parentRootTrace, rootTrace, lengthTrace);
                 deleteMedium();
             }
-        }
+ //       }
         show(root.left);
         //writer.println(leftTraceVertex.val + " " + rightTraceVertex.val + " " + toDelete.val + " " + lengthTrace);
 

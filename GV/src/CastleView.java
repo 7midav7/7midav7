@@ -1,15 +1,11 @@
 import java.awt.*;
 
 /**
- * Created by lenovo on 2/11/2015.
+ * Created by lenovo on 2/17/2015.
  */
-public class СaravanView implements AbstractView {
-    СaravanController controller;
+public class CastleView implements AbstractView{
     ViewFrame frame;
-
-    public void setController(СaravanController controller) {
-        this.controller = controller;
-    }
+    CastleController controller;
 
     @Override
     public void markVertex(int vertex, int color) {
@@ -17,6 +13,14 @@ public class СaravanView implements AbstractView {
         MyRectangle rectangle = dc.getRectangle(vertex);
         rectangle.setColor(new Color(color));
         dc.repaint();
+    }
+
+    public CastleController getController() {
+        return controller;
+    }
+
+    public void setController(CastleController controller) {
+        this.controller = controller;
     }
 
     @Override
@@ -37,7 +41,10 @@ public class СaravanView implements AbstractView {
             for (int j = 0; j < w; ++ j){
                 MyRectangle rect = new MyRectangle(j*width, i*height,
                         width, height, new Color(0xffffff));
+
+                rect.changeBorders( model.getValueVertex(i * h + j));
                 rect.setValue(Integer.toString(model.getValueVertex(i * h + j)));
+
                 dc.addRectangle(rect);
             }
         }

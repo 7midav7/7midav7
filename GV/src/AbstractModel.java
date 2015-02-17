@@ -30,7 +30,7 @@ public abstract class AbstractModel {
     }
 
     public void endBuildGraph() {
-        view.endBuildGraph(list);
+        view.endBuildGraph(this);
     }
 
     public ArrayList<Integer> getNeighbors(int vertex) {
@@ -39,6 +39,7 @@ public abstract class AbstractModel {
 
     public void markVertex(int vertex, int color) {
         marks.set(vertex, color);
+        view.markVertex(vertex, color);
     }
 
     public int size() {
@@ -54,6 +55,7 @@ public abstract class AbstractModel {
     }
 
     public int getValueVertex(int vertex) {
+        if (vertex >= values.size()) return 0;
         return values.get(vertex);
     }
 

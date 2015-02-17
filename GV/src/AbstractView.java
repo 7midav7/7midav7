@@ -5,5 +5,5 @@ import java.util.ArrayList;
  */
 public interface AbstractView {
     public void markVertex(int vertex, int color);
-    public void endBuildGraph( ArrayList<ArrayList<Integer>> list );
+    public void endBuildGraph( AbstractModel list );
 }

@@ -18,8 +18,6 @@ public class ViewFrame extends JFrame {
         setSize(width / 2, height / 2);
         setLocation(width / 4, height / 4);
 
-        setTitle("Caravan");
-
         add(drawComponent);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
