@@ -52,6 +52,9 @@ public abstract class AbstractModel {
 
     public void setValueVertex(int vertex, int value) {
         values.set(vertex, value);
+        if ( view.isReady() ){
+            view.valueVertex(vertex, value);
+        }
     }
 
     public int getValueVertex(int vertex) {

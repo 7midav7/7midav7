@@ -16,11 +16,11 @@ public class BorderColor {
         this.southBorder = southBorder;
     }
 
-    public BorderColor() {
-        this.northBorder = new Color(0);
-        this.westBorder = new Color(0);
-        this.eastBorder = new Color(0);
-        this.southBorder = new Color(0);
+    public BorderColor(int color) {
+        this.northBorder = new Color(color);
+        this.westBorder = new Color(color);
+        this.eastBorder = new Color(color);
+        this.southBorder = new Color(color);
     }
 
     public Color getNorthBorder() {

@@ -18,10 +18,10 @@ public class MyRectangle extends Rectangle2D.Double {
         this.borderColor = borderColor;
     }
 
-    public MyRectangle(double x, double y, double w, double h, Color color) {
+    public MyRectangle(double x, double y, double w, double h, Color color, int borderColor) {
         super(x, y, w, h);
         this.color = color;
-        this.borderColor = new BorderColor();
+        this.borderColor = new BorderColor(borderColor);
         this.value = "";
     }
 

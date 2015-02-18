@@ -12,6 +12,8 @@ public class Marks {
     private static int curG;
     private static int curB;
 
+    static int[] was = new int[100000];
+
     public static void generateMark(){
         Random random = new Random();
         curR = random.nextInt(200);
@@ -32,5 +34,12 @@ public class Marks {
         prevR = curR;
 
         return ( curB + curG * 16 + curR * 256 );
+    }
+
+    public static int nextMark(int x){
+        if ( was[x] == 0 ) {
+            was[x] = nextMark();
+        }
+        return was[x];
     }
 }

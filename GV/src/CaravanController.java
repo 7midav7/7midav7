@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 /**
  * Created by lenovo on 2/11/2015.
  */
-public class СaravanController {
+public class CaravanController {
 
     private AbstractModel model;
     private int from;
@@ -92,18 +92,20 @@ public class СaravanController {
 
             ArrayList<Integer> neighbors = model.getNeighbors(cur);
 
+            int curMark = Marks.nextMark(curDistance);
             for ( Integer vertex: neighbors){
 
                 if (model.getMarkVertex(vertex) == 0){
-                    model.markVertex(vertex, 0xaaaa00 + curDistance*40);
+                    model.markVertex(vertex, curMark);
 
                     deque.add(vertex);
                     lastSquare[vertex] = cur;
                     distance.add(curDistance + 1);
                 }
                 if ( vertex == to ){
-                    model.markVertex(vertex, 200);
+                    model.markVertex(vertex, 0xaa0000);
                     System.out.println(curDistance + 1);
+                    return;
                 }
             }
         }
@@ -112,7 +114,7 @@ public class СaravanController {
     public void findTrace(){
         int cur = lastSquare[this.to];
         while ( cur != -1 ){
-            model.markVertex(cur, 200);
+            model.markVertex(cur, 0xaa0000);
             cur = lastSquare[cur];
         }
     }

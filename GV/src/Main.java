@@ -8,12 +8,12 @@ import java.io.InputStreamReader;
 public class Main {
     public static void caravanProblem() {
         AbstractModel model = new Model();
-        СaravanController controller = new СaravanController();
-        AbstractView view = new СaravanView();
+        CaravanController controller = new CaravanController();
+        CaravanView view = new CaravanView();
 
         model.setView(view);
         controller.setModel(model);
-        ((СaravanView) view).setController(controller);
+        view.setController(controller);
 
         try{
             controller.readData(new InputStreamReader( new FileInputStream("caravan.in")));
@@ -31,7 +31,7 @@ public class Main {
 
         model.setView(view);
         controller.setModel(model);
-        ((CastleView) view).setController(controller);
+        view.setController(controller);
 
         try{
             controller.readData(new InputStreamReader( new FileInputStream("castle.in")));
