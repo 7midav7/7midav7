@@ -8,7 +8,7 @@ public class Model extends AbstractModel {
     public void markVertex(int vertex, int color) {
         super.markVertex(vertex, color);
         try {
-            Thread.sleep(300);
+            Thread.sleep(100);
         } catch (InterruptedException exc){
             Thread.currentThread().interrupt();
         }
